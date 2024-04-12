@@ -1,5 +1,12 @@
 import { V06 } from "userop";
-import { Hex, createPublicClient, createWalletClient, http } from "viem";
+import {
+  Hex,
+  createPublicClient,
+  createWalletClient,
+  getAddress,
+  http,
+  parseEther,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { CLIOpts } from "../../src";
 // @ts-ignore
@@ -14,38 +21,32 @@ export default async function main(t: string, amt: string, opts: CLIOpts) {
     account: privateKeyToAccount(config.signingKey as Hex),
     transport: http(config.rpcUrl),
   });
+
+  const paymaster = opts.withPM
+    ? V06.Account.Hooks.RequestPaymaster.withCommon({
+      variant: "stackupV1",
+      parameters: {
+        rpcUrl: config.paymaster.rpcUrl,
+        type: config.paymaster.context.type as any,
+      },
+    })
+    : undefined;
+
   const account = new V06.Account.Instance({
     ...V06.Account.Common.SimpleAccount.base(ethClient, walletClient),
+    requestPaymaster: paymaster,
   });
 
-  console.log("account", account.getSender());
-  //  const paymasterMiddleware = opts.withPM
-  //    ? Presets.Middleware.verifyingPaymaster(
-  //        config.paymaster.rpcUrl,
-  //        config.paymaster.context
-  //      )
-  //    : undefined;
-  //  const simpleAccount = await Presets.Builder.SimpleAccount.init(
-  //    new ethers.Wallet(config.signingKey),
-  //    config.rpcUrl,
-  //    { paymasterMiddleware, overrideBundlerRpc: opts.overrideBundlerRpc }
-  //  );
-  //  const client = await Client.init(config.rpcUrl, {
-  //    overrideBundlerRpc: opts.overrideBundlerRpc,
-  //  });
-  //
-  //  const target = ethers.utils.getAddress(t);
-  //  const value = ethers.utils.parseEther(amt);
-  //  const res = await client.sendUserOperation(
-  //    simpleAccount.execute(target, value, "0x"),
-  //    {
-  //      dryRun: opts.dryRun,
-  //      onBuild: (op) => console.log("Signed UserOperation:", op),
-  //    }
-  //  );
-  //  console.log(`UserOpHash: ${res.userOpHash}`);
-  //
-  //  console.log("Waiting for transaction...");
-  //  const ev = await res.wait();
-  //  console.log(`Transaction hash: ${ev?.transactionHash ?? null}`);
+  const target = getAddress(t);
+  const value = parseEther(amt);
+  const send = await account
+    .encodeCallData("execute", [target, value, "0x"])
+    .sendUserOperation();
+
+  console.log("Waiting for transaction...");
+  const receipt = await send.wait();
+  if (receipt) {
+    console.log(`Userop hash: ${receipt.userOpHash}`);
+    console.log(`Transaction hash: ${receipt.receipt.transactionHash}`);
+  }
 }
