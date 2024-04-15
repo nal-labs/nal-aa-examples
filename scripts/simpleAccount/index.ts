@@ -5,6 +5,7 @@ import transfer from "./transfer";
 //import erc20Transfer from "./erc20Transfer";
 import erc20Approve from "./erc20Approve";
 import batchErc20Transfer from "./batchErc20Transfer";
+import erc20Transfer from "./erc20Transfer";
 
 const program = new Command();
 
@@ -56,17 +57,14 @@ program
   )
   .requiredOption("-tkn, --token <address>", "The token address")
   .requiredOption("-t, --to <address>", "The recipient address")
-  .requiredOption(
-    "-amt, --amount <decimal>",
-    "Amount of the token to transfer"
+  .requiredOption("-amt, --amount <decimal>", "Amount of the token to transfer")
+  .action(async (opts) =>
+    erc20Transfer(opts.token, opts.to, opts.amount, {
+      dryRun: Boolean(opts.dryRun),
+      withPM: Boolean(opts.withPaymaster),
+      overrideBundlerRpc: opts.overrideBundlerRpc,
+    })
   );
-// .action(async (opts) =>
-//   erc20Transfer(opts.token, opts.to, opts.amount, {
-//     dryRun: Boolean(opts.dryRun),
-//     withPM: Boolean(opts.withPaymaster),
-//     overrideBundlerRpc: opts.overrideBundlerRpc,
-//   })
-// );
 
 program
   .command("erc20Approve")

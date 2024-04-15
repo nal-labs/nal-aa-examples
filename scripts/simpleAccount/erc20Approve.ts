@@ -21,6 +21,7 @@ export default async function main(
   amt: string,
   opts: CLIOpts
 ) {
+  console.log("Approving ERC20 token transfer...");
   const ethClient = createPublicClient({
     transport: http(config.rpcUrl),
   });
