@@ -44,7 +44,6 @@ export default async function main(
   });
   const token = getAddress(tkn);
   const to = getAddress(t);
-  console.log({ token, to });
   const contract = getContract({
     address: token,
     abi: ERC20_ABI,
@@ -58,7 +57,6 @@ export default async function main(
     contract.read.decimals(),
   ]);
 
-  console.log({ symbol, decimals });
   const amount = parseUnits(amt, decimals);
   console.log(`Transferring ${amt} ${symbol}...`);
   const transferFunc = encodeFunctionData({

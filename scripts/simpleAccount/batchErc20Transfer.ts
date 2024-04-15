@@ -1,4 +1,18 @@
-import { CLIOpts } from "../../src";
+import { V06 } from "userop";
+import {
+  Hex,
+  createPublicClient,
+  createWalletClient,
+  encodeFunctionData,
+  getAddress,
+  getContract,
+  http,
+  parseUnits,
+  Address,
+} from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import config from "../../config.json";
+import { CLIOpts, ERC20_ABI } from "../../src";
 // This example requires several layers of calls:
 //  ┕> sender.executeBatch
 //    ┕> token.transfer (recipient 1)
@@ -10,45 +24,69 @@ export default async function main(
   amt: string,
   opts: CLIOpts
 ) {
-  //  const paymasterMiddleware = opts.withPM
-  //    ? Presets.Middleware.verifyingPaymaster(
-  //        config.paymaster.rpcUrl,
-  //        config.paymaster.context
-  //      )
-  //    : undefined;
-  //  const simpleAccount = await Presets.Builder.SimpleAccount.init(
-  //    new ethers.Wallet(config.signingKey),
-  //    config.rpcUrl,
-  //    { paymasterMiddleware, overrideBundlerRpc: opts.overrideBundlerRpc }
-  //  );
-  //  const client = await Client.init(config.rpcUrl, {
-  //    overrideBundlerRpc: opts.overrideBundlerRpc,
-  //  });
-  //
-  //  const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
-  //  const token = ethers.utils.getAddress(tkn);
-  //  const erc20 = new ethers.Contract(token, ERC20_ABI, provider);
-  //  const [symbol, decimals] = await Promise.all([
-  //    erc20.symbol(),
-  //    erc20.decimals(),
-  //  ]);
-  //  const amount = ethers.utils.parseUnits(amt, decimals);
-  //
-  //  let dest: Array<string> = [];
-  //  let data: Array<string> = [];
-  //  t.map((addr) => addr.trim()).forEach((addr) => {
-  //    dest = [...dest, erc20.address];
-  //    data = [
-  //      ...data,
-  //      erc20.interface.encodeFunctionData("transfer", [
-  //        ethers.utils.getAddress(addr),
-  //        amount,
-  //      ]),
-  //    ];
-  //  });
-  //  console.log(
-  //    `Batch transferring ${amt} ${symbol} to ${dest.length} recipients...`
-  //  );
+  const ethClient = createPublicClient({
+    transport: http(config.rpcUrl),
+  });
+
+  const walletClient = createWalletClient({
+    account: privateKeyToAccount(config.signingKey as Hex),
+    transport: http(config.rpcUrl),
+  });
+
+  const paymaster = opts.withPM
+    ? V06.Account.Hooks.RequestPaymaster.withCommon({
+      variant: "stackupV1",
+      parameters: {
+        rpcUrl: config.paymaster.rpcUrl,
+        type: config.paymaster.context.type as any,
+      },
+    })
+    : undefined;
+  const account = new V06.Account.Instance({
+    ...V06.Account.Common.SimpleAccount.base(ethClient, walletClient),
+    requestPaymaster: paymaster,
+  });
+  const token = getAddress(tkn);
+  const contract = getContract({
+    address: token,
+    abi: ERC20_ABI,
+    client: {
+      public: ethClient,
+      wallet: walletClient,
+    },
+  });
+  const [symbol, decimals] = await Promise.all([
+    contract.read.symbol(),
+    contract.read.decimals(),
+  ]);
+
+  const amount = parseUnits(amt, decimals);
+
+  let dest: Array<Address> = [];
+  let data: Array<Address> = [];
+  t.map((addr) => addr.trim()).forEach((addr) => {
+    dest = [...dest, contract.address];
+    data = [
+      ...data,
+      encodeFunctionData({
+        abi: ERC20_ABI,
+        functionName: "transfer",
+        args: [getAddress(addr), amount],
+      }),
+    ];
+  });
+  console.log(
+    `Batch transferring ${amt} ${symbol} to ${dest.length} recipients...`
+  );
+  const batchTransfer = await account
+    .encodeCallData("executeBatch", [dest, data])
+    .sendUserOperation();
+  console.log("Waiting for transaction...");
+  const receipt = await batchTransfer.wait();
+  if (receipt) {
+    console.log(`Userop hash: ${receipt.userOpHash}`);
+    console.log(`Transaction hash: ${receipt.receipt.transactionHash}`);
+  }
   //
   //  const res = await client.sendUserOperation(
   //    simpleAccount.executeBatch(dest, data),
