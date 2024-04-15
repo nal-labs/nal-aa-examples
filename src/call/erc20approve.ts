@@ -1,11 +1,10 @@
 import input from "@inquirer/input";
-import { ICall } from "userop";
 import { ethers } from "ethers";
 import { ERC20_ABI } from "../abi";
 
 export default async function main(
   provider: ethers.providers.JsonRpcProvider
-): Promise<ICall> {
+): Promise<any> {
   const token = await input({
     message: "Enter token address",
     validate(addr) {

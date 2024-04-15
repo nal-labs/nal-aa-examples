@@ -1,8 +1,7 @@
 import input from "@inquirer/input";
-import { ICall } from "userop";
 import { ethers } from "ethers";
 
-export default async function main(): Promise<ICall> {
+export default async function main(): Promise<any> {
   const to = await input({
     message: "Enter recipient address",
     validate(value) {

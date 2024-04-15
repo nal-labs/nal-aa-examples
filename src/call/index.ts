@@ -1,5 +1,4 @@
 import select from "@inquirer/select";
-import { ICall } from "userop";
 import { ethers } from "ethers";
 import createERC20Approve from "./erc20approve";
 import createERC20Transfer from "./erc20transfer";
@@ -14,7 +13,7 @@ enum TransactionType {
 const createTransaction = async (
   provider: ethers.providers.JsonRpcProvider,
   type: TransactionType
-): Promise<ICall> => {
+): Promise<any> => {
   switch (type) {
     case TransactionType.transfer:
       return createTransfer();
@@ -29,8 +28,8 @@ const createTransaction = async (
 
 export const createCalls = async (
   provider: ethers.providers.JsonRpcProvider,
-  calls: Array<ICall> = []
-): Promise<Array<ICall>> => {
+  calls: Array<any> = []
+): Promise<Array<any>> => {
   console.log(`Transaction ${calls.length + 1}:`);
   const call = await createTransaction(
     provider,
