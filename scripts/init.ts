@@ -6,6 +6,8 @@ import { Presets } from "userop";
 
 const INIT_CONFIG = {
   rpcUrl: "https://api.stackup.sh/v1/node/API_KEY",
+  entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  simpleAccountFactory: "0xD0A7F1867f0656ed97D2A5BA1d371AED06879fcc",
   signingKey: new ethers.Wallet(ethers.utils.randomBytes(32)).privateKey,
   secp256r1Key: Presets.Signers.BarzSecp256r1.generatePrivateKey(),
   paymaster: {

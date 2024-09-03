@@ -20,7 +20,9 @@ export default async function main(
   const simpleAccount = await Presets.Builder.SimpleAccount.init(
     new ethers.Wallet(config.signingKey),
     config.rpcUrl,
-    { paymasterMiddleware, overrideBundlerRpc: opts.overrideBundlerRpc }
+    { entryPoint:config.entryPoint,
+      factory: config.simpleAccountFactory,
+      paymasterMiddleware, overrideBundlerRpc: opts.overrideBundlerRpc }
   );
   const client = await Client.init(config.rpcUrl, {
     overrideBundlerRpc: opts.overrideBundlerRpc,
