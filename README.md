@@ -1,5 +1,3 @@
-![](https://i.imgur.com/Ym2VV8z.png)
-
 # Getting started
 
 A collection of example scripts for working with ERC-4337. **For details on how to use this repository, [check out the docs here](https://docs.stackup.sh/docs/erc-4337-examples).**
@@ -11,6 +9,10 @@ The implementation for all commands are located in the [scripts directory](./scr
 - JS SDK: [userop.js](https://github.com/stackup-wallet/userop.js)
 
 > **🚀 Looking for access to hosted infrastructure to build your Smart Accounts? Check out [stackup.sh](https://www.stackup.sh/)!**
+
+# Nal-AA System
+
+[Nal-AA System Solution](./doc/nal-aa-solution.md)
 
 # License
 
