@@ -226,7 +226,7 @@ cast send --private-key <your private key> <paymaster contract addr> "addStake(u
 cast send --private-key 0x48xxxxxxddb 0x0631e63C2dD6640a9D17a3498031CD42Dc6e938f "addStake(uint32)" 1  --value 0.1ether --rpc-url https://testnet-rpc.nal.network
 ```
 
-# Nal-AA使用
+# Nal-AA Call
 
 Currently, **userop.js** is used as the client to call the SDK for Nal-AA.
 
