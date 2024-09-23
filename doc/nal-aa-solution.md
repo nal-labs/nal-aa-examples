@@ -5,7 +5,7 @@
 Nal-AA is a system based on the ERC4337 protocol, featuring AA accounts, gas payment subsidies, and the ability to pay using any ERC20 Token:
 
 1. **AA Account**: Users can create an AA account and designate an account owner to sign transactions. The AA account can hold any on-chain assets, such as ETH, ERC20 tokens, NFTs, and more.
-2. **Gas Payment Subsidy**: The Nal-AA system has the capability to cover gas fees. Any user able to call the Nal-Paymaster service interface can receive subsidized gas payments.
+2. **Gas Fee Delegation**: The Nal-AA system provides a seamless gas fee payment service, enabling users to delegate these costs effortlessly. Users who can access the Nal-Paymaster service interface are able to assign their gas fees to the system, simplifying the transaction process and enhancing their blockchain experience.
 3. **ERC20 Token Gas Payments**: Any user can use their ERC20 tokens to cover gas fees by pre-authorizing the Paymaster contract address.
 
 <aside>
@@ -149,7 +149,7 @@ contract SinglePmV6 is Script {
 - deployerPrivateKey is the private key in step 2；
 - signers[0] is the address in step 2；
 - do not need to modify other code；
-4. Execute the commond below, get paymaster smart contract address：
+4. Execute the command below, get paymaster smart contract address：
 
 ```bash
 forge script scripts/SinglePmV6.s.sol --rpc-url https://testnet-rpc.nal.network
@@ -202,7 +202,7 @@ docker logs -f  nal_paymaster
 
 # Nal-AA Operations
 
-To provide payment services, it is necessary to deposit and stake funds into the Paymaster contract within the EntryPoint contract. Use any on-chain account with ETH to execute the following operations:
+To provide payment delegation services, it is necessary to deposit and stake funds into the Paymaster contract within the EntryPoint contract. Use any on-chain account with ETH to execute the following operations:
 
 - deposit
 
@@ -262,7 +262,7 @@ yarn install
 
 ## Add Configuration
 
-## Gen configuration file
+## Generate configuration file
 
 ```bash
 yarn run init
@@ -298,7 +298,7 @@ description：
         - token：Leave blank for payg; for erc20, provide the USDT contract address;
 
 
-## Gen AA
+## Generate AA
 
 ```bash
 yarn run simpleAccount address
